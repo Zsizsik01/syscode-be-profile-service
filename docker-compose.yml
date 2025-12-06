@@ -1,0 +1,46 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: profiledb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  liquibase:
+    build:
+      context: .
+      dockerfile: Dockerfile.liquibase
+    depends_on:
+      - postgres
+    working_dir: /liquibase
+    command: >
+      sh -c "echo 'Waiting for PostgreSQL...';
+            until nc -z postgres 5432; do sleep 1; done;
+            echo 'PostgreSQL ready, running Liquibase...';
+            liquibase --url=jdbc:postgresql://postgres:5432/profiledb --changeLogFile=changelog.xml --username=postgres --password=postgres update"
+    volumes:
+      - ./liquibase/changelog.xml:/liquibase/changelog.xml
+      - ./liquibase/drivers/postgresql-42.7.8.jar:/liquibase/lib/postgresql.jar
+
+  app:
+    build: .
+    depends_on:
+      - postgres
+      - liquibase
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: profiledb
+    ports:
+      - '3000:3000'
+
+volumes:
+  pgdata:
