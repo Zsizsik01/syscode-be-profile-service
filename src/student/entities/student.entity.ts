@@ -14,6 +14,8 @@ export class Student {
 
   @BeforeInsert()
   generateId() {
-    if (!this.id) this.id = uuidv4();
+    if (!this.id) {
+      this.id = uuidv4();
+    }
   }
 }
