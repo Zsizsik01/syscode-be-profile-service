@@ -32,12 +32,20 @@ describe('StudentController e2e', () => {
     it('should return a list of students', async () => {
       await request(app.getHttpServer())
         .post('/students')
-        .send({ name: 'Alice', email: `alice${Date.now()}@example.com` })
+        .send({
+          name: 'Alice',
+          email: `alice${Date.now()}@example.com`,
+          address: 'test-address-1',
+        })
         .expect(201);
 
       await request(app.getHttpServer())
         .post('/students')
-        .send({ name: 'Bob', email: `bob${Date.now()}@example.com` })
+        .send({
+          name: 'Bob',
+          email: `bob${Date.now()}@example.com`,
+          address: 'test-address-2',
+        })
         .expect(201);
 
       const result = await request(app.getHttpServer())
@@ -51,8 +59,10 @@ describe('StudentController e2e', () => {
         expect(student.id).toBeDefined();
         expect(student.name).toBeDefined();
         expect(student.email).toBeDefined();
+        expect(student.address).toBeDefined();
         expect(typeof student.name).toBe('string');
         expect(typeof student.email).toBe('string');
+        expect(typeof student.address).toBe('string');
       });
     });
   });
@@ -124,7 +134,11 @@ describe('StudentController e2e', () => {
     });
 
     it('should create a student and return with created', async () => {
-      const payload = { name: 'Tester', email: `t${Date.now()}@example.com` };
+      const payload = {
+        name: 'Tester',
+        email: `t${Date.now()}@example.com`,
+        address: 'test-address',
+      };
       await request(app.getHttpServer())
         .post('/students')
         .send(payload)
@@ -142,27 +156,39 @@ describe('StudentController e2e', () => {
     beforeAll(async () => {
       const result = await request(app.getHttpServer())
         .post('/students')
-        .send({ name: 'Initial', email: `initial${Date.now()}@example.com` })
+        .send({
+          name: 'Initial',
+          email: `initial${Date.now()}@example.com`,
+          address: 'test-address',
+        })
         .expect(201);
 
       studentId = result.body.id;
     });
 
     it('should update a student successfully', async () => {
-      const payload = { name: 'Updated Name' };
+      const payload = {
+        name: 'Updated Name',
+        email: 'updated-email@email.com',
+        address: 'updated-address',
+      };
       const result = await request(app.getHttpServer())
         .put(`/students/${studentId}`)
         .send(payload)
         .expect(200);
 
-      expect(result.body.name).toBe(payload.name);
+      expect(result.body).toEqual({ ...payload, id: expect.any(String) });
     });
 
     it('should throw NotFoundException for non-existing student', async () => {
       const fakeId = '00000000-0000-0000-0000-000000000000';
       const result = await request(app.getHttpServer())
         .put(`/students/${fakeId}`)
-        .send({ name: 'Someone' })
+        .send({
+          name: 'Someone',
+          email: 'test-email@email.com',
+          address: 'test-address',
+        })
         .expect(404);
 
       expect(result.body.message).toContain('not found');
@@ -215,15 +241,13 @@ describe('StudentController e2e', () => {
       expect(result.body.message).toBeDefined();
     });
 
-    it('should allow partial updates', async () => {
-      const payload = { email: `updated${Date.now()}@example.com` };
+    it('should not allow partial updates', async () => {
       const result = await request(app.getHttpServer())
         .put(`/students/${studentId}`)
-        .send(payload)
-        .expect(200);
+        .send({ email: `updated${Date.now()}@example.com` })
+        .expect(400);
 
-      expect(result.body.email).toBe(payload.email);
-      expect(result.body.name).toBeDefined();
+      expect(result.body.message).toBeDefined();
     });
   });
 
@@ -233,7 +257,11 @@ describe('StudentController e2e', () => {
     beforeAll(async () => {
       const result = await request(app.getHttpServer())
         .post('/students')
-        .send({ name: 'ToDelete', email: `delete${Date.now()}@example.com` })
+        .send({
+          name: 'ToDelete',
+          email: `delete${Date.now()}@example.com`,
+          address: 'test-address',
+        })
         .expect(201);
 
       studentId = result.body.id;

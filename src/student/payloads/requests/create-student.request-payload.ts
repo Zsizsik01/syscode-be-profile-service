@@ -4,10 +4,15 @@ export class CreateStudentRequestPayload {
   @IsString()
   @MaxLength(200)
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEmail()
   @MaxLength(320)
   @IsNotEmpty()
-  email: string;
+  email!: string;
+
+  @IsString()
+  @MaxLength(320)
+  @IsNotEmpty()
+  address!: string;
 }

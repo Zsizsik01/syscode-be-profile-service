@@ -19,4 +19,9 @@ export class StudentResponsePayload {
   @MaxLength(320)
   @IsNotEmpty()
   email!: string;
+
+  @IsString()
+  @MaxLength(320)
+  @IsNotEmpty()
+  address!: string;
 }

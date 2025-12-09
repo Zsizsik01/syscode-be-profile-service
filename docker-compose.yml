@@ -42,5 +42,11 @@ services:
     ports:
       - '3000:3000'
 
+  address-service:
+    build:
+      context: ../syscode-be-address-service
+    ports:
+      - '3002:3002'
+
 volumes:
   pgdata:

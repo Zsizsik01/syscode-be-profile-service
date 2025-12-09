@@ -1,6 +1,18 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateStudentRequestPayload } from './create-student.request-payload';
+import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-export class UpdateStudentRequestPayload extends PartialType(
-  CreateStudentRequestPayload,
-) {}
+export class UpdateStudentRequestPayload {
+  @IsString()
+  @MaxLength(200)
+  @IsNotEmpty()
+  name!: string;
+
+  @IsEmail()
+  @MaxLength(320)
+  @IsNotEmpty()
+  email!: string;
+
+  @IsString()
+  @MaxLength(320)
+  @IsNotEmpty()
+  address!: string;
+}
